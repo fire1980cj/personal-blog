@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.personalblog.mapper.ArticleMapper">
+    <resultMap id="BaseResultMap" type="com.blog.personalblog.entity.Article">
+        <result property="id" jdbcType="INTEGER" column="id"></result>
+        <result property="author" column="author"></result>
+        <result property="title" jdbcType="VARCHAR" column="title"></result>
+        <result property="userId" jdbcType="INTEGER" column="user_id"></result>
+        <result property="categoryId" jdbcType="INTEGER" column="category_id"></result>
+        <result property="content" jdbcType="LONGVARCHAR" column="content"></result>
+        <result property="views" jdbcType="BIGINT" column="views"></result>
+        <result property="totalWords" jdbcType="BIGINT" column="total_words"></result>
+        <result property="commentableId" jdbcType="INTEGER" column="commentable_id"></result>
+        <result property="artStatus" jdbcType="TINYINT" column="art_status"></result>
+        <result property="description" jdbcType="VARCHAR" column="description"></result>
+        <result property="imageUrl" jdbcType="VARCHAR" column="image_url"></result>
+        <result property="createTime" jdbcType="TIMESTAMP" column="create_time"></result>
+        <result property="updateTime" jdbcType="TIMESTAMP" column="update_time"></result>
+        <result property="categoryName" jdbcType="TIMESTAMP" column="categoryname"></result>
+        <collection property="tagList" ofType="com.blog.personalblog.entity.Tag">
+            <id column="sid" property="id"/>
+            <result column="tag_name" property="tagName"/>
+            <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+            <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        </collection>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id
+        ,author,title,user_id,category_id,content,views,total_words,commentable_id,art_status,image_url,create_time,update_time
+    </sql>
+    <select id="findAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from person_article
+    </select>
+    <select id="getArticlePage" parameterType="com.blog.personalblog.bo.ArticleBO" resultMap="BaseResultMap">
+        select a.*,
+        tag.article_id,
+        tag.tag_id,
+        s.id as sid,
+        u.category_name categoryname,
+        s.tag_name
+        from person_article a
+        left join person_category u on a.category_id = u.category_id
+        left join person_article_tag tag on a.id = tag.article_id
+        left join person_tag s on tag.tag_id = s.id
+        <where>
+            <if test="articleBO.title !=null">
+                and a.title like '%${articleBO.title}%'
+            </if>
+            <if test="articleBO.categoryId !=null">
+                and a.category_id=#{articleBO.categoryId}
+            </if>
+            <if test="articleBO.artStatus !=null">
+                and a.artStatus=#{articleBO.artStatus}
+            </if>
+        </where>
+        <!--<include refid=" "></include>-->
+    </select>
+    <select id="getById" parameterType="java.lang.Integer" resultType="com.blog.personalblog.entity.Article">
+        <include refid="Base_Column_List"></include>
+        from person_article
+        <where>and id like concat ('%',#{id}, '%')
+            <!--        <if test=" xxx != null and xxx != ''"></if>-->
+            <!--        <if test="xxxll">and is_show =#{xxx}</if>-->
+        </where>
+    </select>
+
+    <insert id="createArticle" parameterType="com.blog.personalblog.entity.Article" useGeneratedKeys="true" keyProperty="id">
+        insert into person_article(author, title, user_id, category_id, content, views, total_words,
+                                   commentable_id, art_status, description, image_url)
+        values (#{author}, #{title}, #{userId}, #{categoryId}, #{content}, #{views}, #{totalWords},
+                #{commentableId}, #{artStatus}, #{description}, #{imageUrl})
+    </insert>
+
+    <delete id="deleteArticle" parameterType="java.lang.Integer">
+        delete
+        from person_article
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <update id="updateArticle" parameterType="com.blog.personalblog.entity.Article">
+        update person_article
+        set author=#{author}
+          , title=#{title}
+          , user_id=#{userId}
+          , category_id=#{categoryId}
+          , content=#{content}
+          , views=#{views}
+          , total_words=#{totalWords}
+          , commentable_id=#{commentableId}
+          , art_status=#{artStatus}
+          , description=#{description}
+          , image_url=#{imageUrl}
+        where id = #{id}
+    </update>
+</mapper>

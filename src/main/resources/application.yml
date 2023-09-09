@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: blog
+
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/personal_blog?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:
+    timeout: 300
+  data:
+    redis:
+      repositories:
+        enabled: false
+
+server:
+  port: 9090
+  servlet:
+    context-path: /blog
+
+mybatis:
+  config-location: classpath:mybatis/mybatis-config.xml
+  mapper-locations: classpath:mybatis/mapper/*.xml
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
